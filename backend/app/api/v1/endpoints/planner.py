@@ -16,26 +16,32 @@ def generate_study_plan(payload: PlannerGenerateRequest):
 
     today = date.today()
 
+    topics_today = payload.topics[:3]
+
+    total_minutes = int(payload.daily_study_hours * 60)
+    minutes_per_task = total_minutes // len(topics_today)
+
+
     # Mock logic: just schedule first 3 topics for today
     tasks = []
-    for topic in payload.topics[:3]:
+    for topic in topics_today:
         tasks.append(
             StudyTask(
                 title = topic,
-                duration_minutes = 60,
+                duration_minutes = minutes_per_task,
                 task_type = "Study"
             )
         )
 
     daily_plan = DailyPlan(
         day = today,
-        tasks = tasks
+        tasks = tasks,
     )
 
     return PlannerGenerateResponse(
         course_name = payload.course_name,
         exam_date = payload.exam_date,
-        daily_plans = [daily_plan]
+        daily_plans = [daily_plan],
     )
 
 
