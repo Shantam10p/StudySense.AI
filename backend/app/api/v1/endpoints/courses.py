@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Response, status
 from typing import List
 
 from app.db.database import get_connection
@@ -14,28 +14,44 @@ def get_courses():
  
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM courses")
+        courses = cursor.fetchall()
+        return courses
+    finally:
+        cursor.close()
+        conn.close()
 
-    cursor.execute("SELECT * FROM courses")
-    courses = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    return courses
 
 @router.get("/{course_id}", response_model = CourseResponse)
 def get_course(course_id: int):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("Select * FROM courses WHERE id = %s", (course_id,))
+        course = cursor.fetchone()
 
-    cursor.execute("Select * FROM courses WHERE id = %s", (course_id,))
-    course = cursor.fetchone()
+        if course is None:
+            raise HTTPException(status_code=404, detail="Course not found")
 
-    cursor.close()
-    conn.close()
+        return course
+    finally:
+        cursor.close()
+        conn.close()
 
-    if course is None:
-        raise HTTPException(status_code=404, detail="Course not found")
- 
 
-    return course
+@router.delete("/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_course(course_id: int):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM courses WHERE id = %s", (course_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Course not found")
+
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    finally:
+        cursor.close()
+        conn.close()
