@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response, status
 from typing import List
 
 from app.db.database import get_connection
-from app.schemas.course import CourseResponse
+from app.schemas.course import CoursePutRequest, CourseResponse
 
 router = APIRouter()
 
@@ -52,6 +52,40 @@ def delete_course(course_id: int):
             raise HTTPException(status_code=404, detail="Course not found")
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@router.put("/{course_id}", response_model=CourseResponse)
+def update_course_put(course_id: int, payload: CoursePutRequest):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            UPDATE courses
+            SET course_name = %s, exam_date = %s, daily_study_hours = %s
+            WHERE id = %s
+            """,
+            (
+                payload.course_name,
+                payload.exam_date,
+                payload.daily_study_hours,
+                course_id,
+            ),
+        )
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Course not found")
+
+        cursor_dict = conn.cursor(dictionary=True)
+        try:
+            cursor_dict.execute("SELECT * FROM courses WHERE id = %s", (course_id,))
+            return cursor_dict.fetchone()
+        finally:
+            cursor_dict.close()
     finally:
         cursor.close()
         conn.close()
