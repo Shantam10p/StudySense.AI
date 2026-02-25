@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Course } from "../types/course";
 import { fetchCourses } from "../api";
+import { TopBar } from "../components/TopBar";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -36,9 +37,13 @@ export default function CoursesPage() {
     return <p>No courses yet.</p>;
   }
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">Courses</h1>
+return (
+  <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
+    <TopBar />
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
+        Courses
+      </h1>
       <ul>
         {courses.map((course) => (
           <li key={course.id}>
@@ -48,5 +53,6 @@ export default function CoursesPage() {
         ))}
       </ul>
     </div>
-  );
-}
+  </div>
+);
+};
