@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import type { Course } from "../types/course";
 import { fetchCourses } from "../api";
-import { TopBar } from "../components/TopBar";
+import { TopBar } from "../components/Topbar";
+import { CourseCard } from "../components/CourseCard";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -37,22 +38,19 @@ export default function CoursesPage() {
     return <p>No courses yet.</p>;
   }
 
-return (
-  <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
-    <TopBar />
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
-        Courses
-      </h1>
-      <ul>
-        {courses.map((course) => (
-          <li key={course.id}>
-            <strong>{course.course_name}</strong> — Exam: {course.exam_date} —{" "}
-            {course.daily_study_hours}h/day
-          </li>
-        ))}
-      </ul>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
+      <TopBar />
+      <div className="p-6 max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
+          Courses
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {courses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
+        </div>
+      </div>
     </div>
-  </div>
-);
-};
+  );
+}
