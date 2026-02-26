@@ -1,11 +1,16 @@
 // src/App.tsx
+import { Navigate, Route, Routes } from "react-router-dom";
+
 import CoursesPage from "./pages/CoursesPage";
+import PlannerPage from "./pages/PlannerPage";
 
 function App() {
   return (
-    <main style={{ padding: "1rem", fontFamily: "system-ui, sans-serif" }}>
-      <CoursesPage />
-    </main>
+    <Routes>
+      <Route path="/" element={<CoursesPage />} />
+      <Route path="/planner" element={<PlannerPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
