@@ -45,7 +45,7 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
-      <TopBar onNewPlan={() => navigate("/planner")} />
+      <TopBar onNewPlan={() => navigate("/planner/new")} />
       <div className="p-6 max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
           Courses

@@ -1,14 +1,12 @@
 
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { fetchCourse, fetchCoursePlan, generatePlan } from "../api/index";
+import { generatePlan } from "../api/index";
 import { Button } from "../components/Button";
-import type { PlannerGenerateResponse } from "../types/planner";
 
 export default function PlannerPage() {
   const navigate = useNavigate();
-  const { courseId } = useParams();
   const [courseName, setCourseName] = useState("");
   const [examDate, setExamDate] = useState("");
   const [dailyStudyHours, setDailyStudyHours] = useState<number>(2);
@@ -17,47 +15,10 @@ export default function PlannerPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<PlannerGenerateResponse | null>(null);
-
-  useEffect(() => {
-    async function loadCoursePlan(targetCourseId: number) {
-      setLoading(true);
-      setError(null);
-      try {
-        const [course, data] = await Promise.all([
-          fetchCourse(targetCourseId),
-          fetchCoursePlan(targetCourseId),
-        ]);
-        setResult(data);
-        setCourseName(course.course_name);
-        setExamDate(course.exam_date);
-        setDailyStudyHours(course.daily_study_hours);
-      } catch (err: any) {
-        setError(err?.message || "Failed to load course plan");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (!courseId) {
-      setResult(null);
-      setError(null);
-      return;
-    }
-
-    const parsedCourseId = Number(courseId);
-    if (Number.isNaN(parsedCourseId)) {
-      setError("Invalid course id");
-      return;
-    }
-
-    loadCoursePlan(parsedCourseId);
-  }, [courseId]);
 
   async function onGenerate() {
     setLoading(true);
     setError(null);
-    setResult(null);
 
     const topics = topicsText
       .split(/\n|,/)
@@ -74,7 +35,6 @@ export default function PlannerPage() {
       };
 
       const data = await generatePlan(payload);
-      setResult(data);
       navigate(`/planner/${data.course_id}`);
     } catch (err: any) {
       setError(err?.message || "Failed to generate plan");
@@ -91,9 +51,7 @@ export default function PlannerPage() {
 
       <main className="mx-auto max-w-[900px] px-6 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">
-            {courseId ? "Study Plan" : "Create Study Plan"}
-          </h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Create Study Plan</h1>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
@@ -105,7 +63,6 @@ export default function PlannerPage() {
               <input
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
-                disabled={Boolean(courseId)}
                 className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. Organic Chemistry"
               />
@@ -119,7 +76,6 @@ export default function PlannerPage() {
                 type="date"
                 value={examDate}
                 onChange={(e) => setExamDate(e.target.value)}
-                disabled={Boolean(courseId)}
                 className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </label>
@@ -134,7 +90,6 @@ export default function PlannerPage() {
                 step={0.5}
                 value={dailyStudyHours}
                 onChange={(e) => setDailyStudyHours(Number(e.target.value))}
-                disabled={Boolean(courseId)}
                 className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </label>
@@ -146,7 +101,6 @@ export default function PlannerPage() {
               <input
                 value={textbook}
                 onChange={(e) => setTextbook(e.target.value)}
-                disabled={Boolean(courseId)}
                 className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. Campbell Biology"
               />
@@ -159,7 +113,6 @@ export default function PlannerPage() {
               <textarea
                 value={topicsText}
                 onChange={(e) => setTopicsText(e.target.value)}
-                disabled={Boolean(courseId)}
                 className="mt-1 w-full min-h-28 rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder={"Limits, Derivatives, Integrals\nSeries\nOptimization"}
               />
@@ -167,65 +120,18 @@ export default function PlannerPage() {
           </div>
 
           <div className="mt-5 flex items-center gap-3">
-            {!courseId ? (
-              <button
-                type="button"
-                onClick={onGenerate}
-                disabled={loading}
-                className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-              >
-                {loading ? "Generating..." : "Generate"}
-              </button>
-            ) : null}
-
-            {courseId ? (
-              <button
-                type="button"
-                onClick={() => navigate("/planner")}
-                className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200"
-              >
-                Create New Plan
-              </button>
-            ) : null}
+            <button
+              type="button"
+              onClick={onGenerate}
+              disabled={loading}
+              className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+            >
+              {loading ? "Generating..." : "Generate"}
+            </button>
 
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
           </div>
         </div>
-
-        {result ? (
-          <div className="mt-6 bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">
-                  {result.course_name}
-                </h2>
-                <p className="text-sm text-slate-600">Exam: {result.exam_date}</p>
-              </div>
-              <p className="text-sm text-slate-500">Days: {result.daily_plans.length}</p>
-            </div>
-
-            <div className="mt-4 space-y-4">
-              {result.daily_plans.map((dp) => (
-                <div key={dp.day} className="rounded-lg border border-slate-200 p-4">
-                  <div className="text-sm font-medium text-slate-900">{dp.day}</div>
-                  <div className="mt-3 space-y-2">
-                    {dp.tasks.map((task, idx) => (
-                      <div
-                        key={`${task.title}-${idx}`}
-                        className="flex items-center justify-between gap-3 text-sm"
-                      >
-                        <div className="text-slate-800">{task.title}</div>
-                        <div className="text-slate-600">
-                          {task.duration_minutes}m · {task.task_type}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </main>
     </div>
   );
