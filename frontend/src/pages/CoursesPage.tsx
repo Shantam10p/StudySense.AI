@@ -48,7 +48,7 @@ export default function CoursesPage() {
       <TopBar onNewPlan={() => navigate("/planner/new")} />
       <div className="p-6 max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
-          Courses
+         Your  Courses
         </h1>
         {deleteError ? (
           <p className="mb-4 text-sm text-red-600">{deleteError}</p>
