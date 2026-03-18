@@ -31,18 +31,6 @@ export default function CoursesPage() {
     loadCourses();
   }, []);
 
-  if (loading) {
-    return <p>Loading courses...</p>;
-  }
-
-  if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
-  }
-
-  if (courses.length === 0) {
-    return <p>No courses yet.</p>;
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
       <TopBar onNewPlan={() => navigate("/planner/new")} />
@@ -53,16 +41,27 @@ export default function CoursesPage() {
         {deleteError ? (
           <p className="mb-4 text-sm text-red-600">{deleteError}</p>
         ) : null}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              onDelete={() => setDeletingId(course.id)}
-              onView={() => navigate(`/planner/${course.id}`)}
-            />
-          ))}
-        </div>
+
+        {loading ? <p className="text-slate-600">Loading courses...</p> : null}
+
+        {!loading && error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        {!loading && !error && courses.length === 0 ? (
+          <p className="text-slate-600">No courses yet.</p>
+        ) : null}
+
+        {!loading && !error && courses.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {courses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                onDelete={() => setDeletingId(course.id)}
+                onView={() => navigate(`/planner/${course.id}`)}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
       {deletingId !== null ? (
         <ConfirmModal
