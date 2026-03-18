@@ -1,4 +1,5 @@
 // src/api/index.ts
+import type { AuthResponse, LoginRequest, SignupRequest } from "../types/auth";
 import type { Course } from "../types/course";
 import type {
   PlannerGenerateRequest,
@@ -6,6 +7,40 @@ import type {
 } from "../types/planner";
 
 const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+
+export async function signupUser(payload: SignupRequest): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to sign up (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function loginUser(payload: LoginRequest): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to login (status ${response.status})`);
+  }
+
+  return response.json();
+}
 
 export async function fetchCourses(): Promise<Course[]> {
   const response = await fetch(`${API_BASE_URL}/courses`);

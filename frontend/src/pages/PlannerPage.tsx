@@ -46,7 +46,7 @@ export default function PlannerPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
       <div className="px-6 pt-6">
-        <Button onClick={() => navigate("/")}>Back</Button>
+        <Button onClick={() => navigate("/courses")}>Back</Button>
       </div>
 
       <main className="mx-auto max-w-[900px] px-6 py-8">
